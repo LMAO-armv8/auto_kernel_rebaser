@@ -61,14 +61,16 @@ jobs:
       - name: Start rebasing
         run: |
           cd kernel
-          for i in ${OEM_DIR_LIST}; do 
-              rm -rf ${i}
+          for i in ${OEM_DIR_LIST}
+          do 
+              rm -rf $i
           done
           cd -
           cp -r oem/* kernel/
           cd kernel
-          for i in ${OEM_DIR_LIST}; do 
-              git add ${i}
+          for i in ${OEM_DIR_LIST}
+          do 
+              git add $i
               git commit -s -m "${i}: Import OEM Changes"
           done
           git add .
