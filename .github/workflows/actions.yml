@@ -1,4 +1,4 @@
-name: Dump and Push
+name: Rebase and Push
 
 on:
   push:
@@ -21,8 +21,9 @@ jobs:
       matrix:
         include:
           - codename: "r0q"
-            ack_branch : "android12-5.10"
+            ack_branch: "android12-5.10"
             oem: "https://github.com/LMAO-armv8/kernel_samsung_r0q"
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -47,41 +48,34 @@ jobs:
           cd oem
           OEM_KERNEL_VERSION=$(make kernelversion)
           cd -
-          
           echo "Hard Reset ACK to ${OEM_KERNEL_VERSION}"
           cd kernel
           OEM_KERNEL_VER_SHORT_SHA=$(git log --oneline ${ACK_BRANCH} Makefile | grep -i ${OEM_KERNEL_VERSION} | grep -i merge | cut -d ' ' -f1)
           git reset --hard ${OEM_KERNEL_VER_SHORT_SHA}
           cd -
-
           # Get the list of Directories of the OEM Kernel
           cd oem
           OEM_DIR_LIST=$(find -type d -printf "%P\n" | grep -v / | grep -v .git)
           cd -
-          
-      - name: Start Rebasing
+
+      - name: Start rebasing
         run: |
           cd kernel
-          for i in ${OEM_DIR_LIST}
-          do 
-            rm -rf ${i}
+          for i in ${OEM_DIR_LIST}; do 
+              rm -rf ${i}
           done
-
           cd -
           cp -r oem/* kernel/
           cd kernel
-
-          for i in ${OEM_DIR_LIST}
-          do 
-            git add ${i}
-	          git commit -s -m "${i}: Import OEM Changes"
+          for i in ${OEM_DIR_LIST}; do 
+              git add ${i}
+              git commit -s -m "${i}: Import OEM Changes"
           done
-
           git add .
           git commit -s -m "Import Remaining OEM Changes"
           cd -
 
-          echo "Your Kernel has been successfully rebased to ACK. Please check kernel/"
+          echo "Your Kernel has been successfully rebased to ACK. Please check kernel"
 
       - name: Pushing the kernel
         run: |
@@ -91,7 +85,7 @@ jobs:
           git remote add origin ${{ matrix.oem }}
           for rev in $(git rev-list --reverse origin/rebase..rebase)
           do 
-            git push -f https://${GH_TOKEN}@github.com/${echo "${{ matrix.oem }}" | sed -n 's|^https://github.com/\(.*\)$|\1|p'} $rev:rebase
+              git push -f https://${TOKEN}@github.com/$(echo "${{ matrix.oem }}" | sed -n 's|^https://github.com/\(.*\)$|\1|p') $rev:rebase
           done
           cd -
 
