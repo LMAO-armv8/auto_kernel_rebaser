@@ -61,6 +61,7 @@ jobs:
           cd kernel
           for i in ${OEM_DIR_LIST}
           do 
+              echo "$i"
               rm -rf $i
           done
           cd -
