@@ -57,6 +57,7 @@ jobs:
           cd oem
           OEM_DIR_LIST=$(find -type d -printf "%P\n" | grep -v / | grep -v .git)
           cd -
+          sudo chmod 777 * -R
 
       - name: Start rebasing
         run: |
@@ -85,10 +86,8 @@ jobs:
           git branch -m rebase
           git remote remove origin
           git remote add origin ${{ matrix.oem }}
-          for rev in $(git rev-list --reverse origin/rebase..rebase)
-          do 
-              git push -f https://${TOKEN}@github.com/$(echo "${{ matrix.oem }}" | sed -n 's|^https://github.com/\(.*\)$|\1|p') $rev:rebase
-          done
+          wget https://gist.githubusercontent.com/Sacristan/8e759e6d7627a9ba4b26643869188426/raw/dcaffb3feb4b78161337c0d288d22c590d6b213a/push_commits_by_chunks.sh
+          ./push_commits_by_chunks.sh
           cd -
 
       - name: Cleaning the area
